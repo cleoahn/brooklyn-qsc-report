@@ -173,7 +173,11 @@
 
   function isQuestionColumn(key) {
     const k = normalizeQuestionKey(key);
-    return /^(DOC|COOK|INV|SVC|CLN)_+\d+/.test(k);
+    if (/^(DOC|COOK|INV|SVC|CLN)_+\d+/.test(k)) return true;
+    // 한글 접두사 지원: 서류_, 조리_, 식재료_, 서비스_, 청결_
+    const k2 = cleanKey(key).replace(/\s+/g, "");
+    if (/^(서류|조리|식재료|서비스|청결)_\d+/.test(k2)) return true;
+    return false;
   }
 
   function isMetaColumn(key) {
@@ -196,6 +200,13 @@
     if (k.startsWith("INV_")) return "INV";
     if (k.startsWith("SVC_")) return "SVC";
     if (k.startsWith("CLN_")) return "CLN";
+    // 한글 접두사 매핑
+    const k2 = cleanKey(key).replace(/\s+/g, "");
+    if (k2.startsWith("서류_")) return "DOC";
+    if (k2.startsWith("조리_")) return "COOK";
+    if (k2.startsWith("식재료_")) return "INV";
+    if (k2.startsWith("서비스_")) return "SVC";
+    if (k2.startsWith("청결_")) return "CLN";
     return "ETC";
   }
 
