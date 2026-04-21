@@ -1272,9 +1272,22 @@ ${photoHtml}
         renderPhotoPreview();
 
         const sampleStore = getStoreValueFromRow(csvData[0], detectedStoreColumn);
+
+        // 디버그: 서류 컬럼 감지 결과
+        const allHeaders2 = Object.keys(csvData[0]);
+        const docDetected = allHeaders2.filter(h => isQuestionColumn(h) && getSectionFromKey(h) === "DOC");
+        const docSkipped  = allHeaders2.filter(h => cleanKey(h).includes("서류") && !isQuestionColumn(h));
+        showDebug(
+          "[DOC 감지 결과]\n" +
+          "✅ 문항 인식 (" + docDetected.length + "개):\n" +
+          (docDetected.length ? docDetected.map(h => "  " + h).join("\n") : "  없음") + "\n\n" +
+          "⛔ 제외됨 (" + docSkipped.length + "개):\n" +
+          (docSkipped.length ? docSkipped.map(h => "  " + h).join("\n") : "  없음")
+        );
+
         setStatus(
-          `CSV 업로드 완료 | 행 수: ${csvData.length} | 매장 컬럼: ${detectedStoreColumn}` +
-          (sampleStore ? ` | 예시값: ${sampleStore}` : "")
+          "CSV 업로드 완료 | 행 수: " + csvData.length + " | 매장 컬럼: " + detectedStoreColumn +
+          (sampleStore ? " | 예시값: " + sampleStore : "")
         );
       },
       error: (err) => {
