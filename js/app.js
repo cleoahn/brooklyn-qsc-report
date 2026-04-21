@@ -1024,20 +1024,38 @@
       `;
     });
 
-    // ── [v3.2] 상세표: 중복 없는 allItems 사용 ──
+    // ── [v3.2] 상세표: SECTION_ORDER 기반 섹션 그룹핑 ──
     let detailRows = "";
-    report.detailedItems.forEach((item) => {
-      const rowBg = item.resultType === "FAIL" ? "#fff0f0"
-                  : item.resultType === "WARN" ? "#fffbe6"
-                  : "";
+    SECTION_ORDER.forEach((s) => {
+      const sectionItems = report.detailedItems.filter((item) => item.section === s);
+      if (!sectionItems.length) return;
+
       detailRows += `
-        <tr style="background:${rowBg};">
-          <td><b>${escapeHtml(item.code)}</b></td>
-          <td>${escapeHtml(item.sectionLabel)}</td>
-          <td>${escapeHtml(item.resultDisplay)}</td>
-          <td>${escapeHtml(item.priority)}</td>
+        <tr>
+          <td colspan="4" style="background:#f0f4ff;font-weight:800;font-size:13px;color:#334;">
+            ${escapeHtml(SECTION_LABELS[s] || s)}
+          </td>
         </tr>
       `;
+
+      const sorted = [...sectionItems].sort((a, b) => {
+        const o = { FAIL: 0, WARN: 1, NONE: 2, OK: 3 };
+        return (o[a.resultType] ?? 3) - (o[b.resultType] ?? 3);
+      });
+
+      sorted.forEach((item) => {
+        const rowBg = item.resultType === "FAIL" ? "#fff0f0"
+                    : item.resultType === "WARN" ? "#fffbe6"
+                    : "";
+        detailRows += `
+          <tr style="background:${rowBg};">
+            <td><b>${escapeHtml(item.code)}</b></td>
+            <td>${escapeHtml(item.sectionLabel)}</td>
+            <td>${escapeHtml(item.resultDisplay)}</td>
+            <td>${escapeHtml(item.priority)}</td>
+          </tr>
+        `;
+      });
     });
 
     const immediateHtml = report.actionComments.immediate.map((x) => `<li>${escapeHtml(x)}</li>`).join("");
