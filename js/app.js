@@ -254,22 +254,24 @@
   }
 
   function getDisplayResult(type) {
-    if (type === "OK") return "⭕ 된다";
+    if (type === "OK")   return "⭕ 된다";
     if (type === "WARN") return "△ 흔들린다";
     if (type === "FAIL") return "❌ 안 된다";
+    if (type === "NONE") return "- 미입력";
     return "-";
   }
 
   function getScoreByType(type) {
-    if (type === "OK") return 2;
+    if (type === "OK")   return 2;
     if (type === "WARN") return 1;
     if (type === "FAIL") return 0;
-    return 0;
+    return 0; // NONE도 0점
   }
 
   function getPriority(type) {
     if (type === "FAIL") return "높음";
     if (type === "WARN") return "중간";
+    if (type === "NONE") return "확인필요";
     return "낮음";
   }
 
@@ -477,8 +479,7 @@
       if (!isQuestionColumn(key)) return;
 
       const rawValue = latestRow[key];
-      const type = getResultType(rawValue);
-      if (!type) return;
+      const type = getResultType(rawValue) || "NONE"; // 빈 값도 NONE으로 포함
 
       const code = normalizeQuestionKey(key);
       if (itemMap.has(code)) return; // 중복 코드 무시
