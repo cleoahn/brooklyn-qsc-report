@@ -172,16 +172,24 @@
   }
 
   function isQuestionColumn(key) {
-    const k = normalizeQuestionKey(key);
+    const raw = cleanKey(key);
+
+    // 파일업로드 / 사진업로드 컬럼 제외
+    if (raw.includes("파일업로드") || raw.includes("사진 업로드") || raw.includes("사진업로드")) return false;
+
+    const k = normalizeQuestionKey(raw);
     if (/^(DOC|COOK|INV|SVC|CLN)_+\d+/.test(k)) return true;
+
     // 한글 접두사 지원: 서류_, 조리_, 식재료_, 서비스_, 청결_
-    const k2 = cleanKey(key).replace(/\s+/g, "");
+    const k2 = raw.replace(/\s+/g, "");
     if (/^(서류|조리|식재료|서비스|청결)_\d+/.test(k2)) return true;
+
     return false;
   }
 
   function isMetaColumn(key) {
     const k = cleanKey(key);
+    if (k.includes("파일업로드") || k.includes("사진 업로드") || k.includes("사진업로드")) return true;
     return META_COLUMN_KEYWORDS.some((m) => k === m || k.includes(m));
   }
 
